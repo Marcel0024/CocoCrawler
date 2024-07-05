@@ -18,7 +18,7 @@ public class RedditPostsBackgroundService(ILoggerFactory loggerFactory) : Backgr
     {
         _crawlerEngine = await new CrawlerEngineBuilder()
             .AddPage("https://old.reddit.com/r/csharp", pageOptions => pageOptions
-                .OpenLinks("div.thing.link.self a.bylink.comments", subPageOptions => subPageOptions
+                .OpenLinks(linksSelector: "div.thing.link.self a.byselector: link.comments", subPageOptions => subPageOptions
                     .ExtractObject([
                         new("Title","div.sitetable.linklisting a.title"),
                         new("Url","div.sitetable.linklisting a.title", "href"),

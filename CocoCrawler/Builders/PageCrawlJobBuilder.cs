@@ -58,11 +58,11 @@ public class PageCrawlJobBuilder
     /// <summary>
     /// Adds a task to open a page and perform openLinks tasks.
     /// </summary>
-    /// <param name="selector">The CSS selector to select the element to openLinks.</param>
+    /// <param name="linksSelector">The CSS selector to select the element to openLinks.</param>
     /// <param name="tasks">The array of openLinks tasks to perform.</param>
     /// <param name="options">The action to configure the page actions for the openLinks tasks.</param>
     /// <returns>The updated <see cref="PageCrawlJobBuilder"/> instance.</returns>
-    public PageCrawlJobBuilder OpenLinks(string selector, Action<PageCrawlJobBuilder> jobOptions, Action<PageActionsBuilder>? options = null)
+    public PageCrawlJobBuilder OpenLinks(string linksSelector, Action<PageCrawlJobBuilder> jobOptions, Action<PageActionsBuilder>? options = null)
     {
         PageActionsBuilder? pageActionsBuilder = null;
 
@@ -77,7 +77,7 @@ public class PageCrawlJobBuilder
 
         jobOptions(builder);
 
-        Tasks.Add(new CrawlPageOpenLinksTask(selector, builder, pageActionsBuilder?.Build()));
+        Tasks.Add(new CrawlPageOpenLinksTask(linksSelector, builder, pageActionsBuilder?.Build()));
 
         return this;
     }

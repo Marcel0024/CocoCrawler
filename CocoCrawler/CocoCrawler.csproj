@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Version>0.1.1</Version>
+		<Version>0.1.2</Version>
 		<Authors>Marcel0024</Authors>
 		<Description>An easy to use Crawler to parse websites. Supports Headless and Headfull.</Description>
 		<Title>CocoCrawler</Title>

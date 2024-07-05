@@ -17,7 +17,7 @@ public class RedditListingBackgroundService(ILoggerFactory loggerFactory) : Back
     {
         _crawlerEngine = await new CrawlerEngineBuilder()
             .AddPages(["https://old.reddit.com/r/csharp", "https://old.reddit.com/r/dotnet"], pageOptions => pageOptions
-                .ExtractList("div.thing.link.self", [
+                .ExtractList(containersSelector: "div.thing.link.self", [
                     new("Title","a.title"),
                     new("Upvotes", "div.score.unvoted"),
                     new("Datetime", "time", "datetime"),
