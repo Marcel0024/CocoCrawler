@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CocoCrawler", "CocoCrawler\CocoCrawler.csproj", "{04FDE2B4-C800-41B9-BC71-C39503871F13}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E8E77F73-2709-4B42-9FDC-9475BD4306E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{9EDB9EF4-A58C-44D4-87C9-A8960C007837}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackgroundServiceExtractList", "Examples\BackgroundServiceExtractList\BackgroundServiceExtractList.csproj", "{0B926C23-31CD-4208-9773-61EC3CA9BD23}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E0343CD2-205D-4169-A077-818B0B6602CE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CocoCrawler.Tests", "Tests\CocoCrawler.Tests.csproj", "{FE2D3737-4B8F-4FB2-88FF-E3627D996432}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackgroundServiceOpenLinksAndExtractObjects", "Examples\BackgroundServiceOpenLinksAndExtractObject\BackgroundServiceOpenLinksAndExtractObjects.csproj", "{9BBA41BF-10D9-4030-A523-8539734E208F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04FDE2B4-C800-41B9-BC71-C39503871F13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04FDE2B4-C800-41B9-BC71-C39503871F13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04FDE2B4-C800-41B9-BC71-C39503871F13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04FDE2B4-C800-41B9-BC71-C39503871F13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B926C23-31CD-4208-9773-61EC3CA9BD23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B926C23-31CD-4208-9773-61EC3CA9BD23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B926C23-31CD-4208-9773-61EC3CA9BD23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B926C23-31CD-4208-9773-61EC3CA9BD23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE2D3737-4B8F-4FB2-88FF-E3627D996432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE2D3737-4B8F-4FB2-88FF-E3627D996432}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE2D3737-4B8F-4FB2-88FF-E3627D996432}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE2D3737-4B8F-4FB2-88FF-E3627D996432}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BBA41BF-10D9-4030-A523-8539734E208F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BBA41BF-10D9-4030-A523-8539734E208F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BBA41BF-10D9-4030-A523-8539734E208F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BBA41BF-10D9-4030-A523-8539734E208F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{04FDE2B4-C800-41B9-BC71-C39503871F13} = {E8E77F73-2709-4B42-9FDC-9475BD4306E2}
+		{0B926C23-31CD-4208-9773-61EC3CA9BD23} = {9EDB9EF4-A58C-44D4-87C9-A8960C007837}
+		{FE2D3737-4B8F-4FB2-88FF-E3627D996432} = {E0343CD2-205D-4169-A077-818B0B6602CE}
+		{9BBA41BF-10D9-4030-A523-8539734E208F} = {9EDB9EF4-A58C-44D4-87C9-A8960C007837}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {992F3EF0-1D78-465D-914D-294A906EDF2C}
+	EndGlobalSection
+EndGlobal

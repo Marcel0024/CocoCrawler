@@ -1,0 +1,35 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  buildandpublish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.x'
+
+    - name: Build
+      run:  dotnet build -c Release
+
+    - name: Test
+      run:  dotnet test
+
+    - name: Pack
+      run:  dotnet pack CocoCrawler/CocoCrawler.csproj -o nuget-release -c Release --no-build
+      
+    - name: NuGet Push
+      if: ${{ github.ref == 'refs/heads/main' }}
+      run:  dotnet nuget push nuget-release/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate

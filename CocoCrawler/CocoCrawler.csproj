@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Version>0.1.1</Version>
+		<Authors>Marcel0024</Authors>
+		<Description>An easy to use Crawler to parse websites. Supports Headless and Headfull.</Description>
+		<Title>CocoCrawler</Title>
+		<PackageTags>Crawler;Scraper;Coco;Parser;Builder;Site;Chrome</PackageTags>
+		<RepositoryUrl>https://github.com/Marcel0024/CocoCrawler</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AngleSharp" Version="1.1.2" />
+		<PackageReference Include="PuppeteerSharp" Version="18.0.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md" Pack="true" PackagePath=""/>
+		<InternalsVisibleTo Include="CocoCrawler.Tests" />
+	</ItemGroup>
+
+</Project>
