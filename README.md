@@ -117,7 +117,7 @@ using the engine builder it's possible to add custom implementations
 ```
 
 
-### Customer Outputs
+### Custom Outputs
 
 It's possible to add custom outputs by implementing the `ICrawlOutput` interface.
 
