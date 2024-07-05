@@ -54,7 +54,7 @@ public class CrawlerEngine(EngineSettings settings)
         }
         catch (CocoCrawlerPageLimitReachedException ex)
         {
-            _logger?.LogInformation("Crawl Finished. {ex}", ex.Message);
+            _logger?.LogInformation("Crawl Finished. {ex}. To Increase the limit call .ConfigureEngine(o => o.TotalPagesToCrawl(...))", ex.Message);
             return;
         }
         catch (OperationCanceledException)
