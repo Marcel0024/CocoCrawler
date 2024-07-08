@@ -1,4 +1,5 @@
 ﻿using CocoCrawler.Crawler;
+using CocoCrawler.CrawlJob;
 using CocoCrawler.Exceptions;
 using CocoCrawler.Job;
 using CocoCrawler.Outputs;
@@ -6,43 +7,42 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using PuppeteerSharp;
 using System.Collections.Immutable;
-using System.Net;
 
 namespace CocoCrawler;
 
-public class CrawlerEngine(EngineSettings settings)
+public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob> jobs)
 {
     private readonly ILogger? _logger = settings.LoggerFactory?.CreateLogger<CrawlerEngine>();
 
     public virtual async Task RunAsync(CancellationToken cancellationToken = default)
     {
-        var parallelOptions = new ParallelOptions
-        {
-            CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = settings.ParallelismDegree
-        };
-
-        await DownloadBrowser();
-        await using var browser = await LaunchBrowser(settings);
+        await using var browser = await DownloadAndLaunchBrowser(settings);
+        await settings.Scheduler.Init(jobs, cancellationToken);
 
         try
         {
             if (settings.DisableParallelism)
             {
-                // Use 1 browser with 1 tab for all jobs
+                // 1 browser with 1 tab for all jobs
                 using var page = await browser.NewPageAsync();
                 await AddUserAgent(page, settings.UserAgent);
                 await AddCookies(page, settings.Cookies);
 
-                await foreach (var job in settings.Scheduler.GetAllAsync(cancellationToken))
+                await foreach (var job in settings.Scheduler.GetAll(cancellationToken))
                 {
                     await CrawlPage(page, job, settings, cancellationToken);
                 }
             }
             else
             {
-                // Use 1 browser with a tab for each job in parallel
-                await Parallel.ForEachAsync(settings.Scheduler.GetAllAsync(cancellationToken), parallelOptions, async (job, token) =>
+                var parallelOptions = new ParallelOptions
+                {
+                    CancellationToken = cancellationToken,
+                    MaxDegreeOfParallelism = settings.ParallelismDegree
+                };
+
+                // 1 browser with a tab for each job in parallel
+                await Parallel.ForEachAsync(settings.Scheduler.GetAll(cancellationToken), parallelOptions, async (job, token) =>
                 {
                     using var page = await browser.NewPageAsync();
                     await AddUserAgent(page, settings.UserAgent);
@@ -54,12 +54,12 @@ public class CrawlerEngine(EngineSettings settings)
         }
         catch (CocoCrawlerPageLimitReachedException ex)
         {
-            _logger?.LogInformation("Crawl Finished. {ex}. To Increase the limit call .ConfigureEngine(o => o.TotalPagesToCrawl(...))", ex.Message);
+            _logger?.LogInformation("Crawl Finished. {ex}. To Increase the crawl limit call .ConfigureEngine(o => o.TotalPagesToCrawl(...))", ex.Message);
             return;
         }
         catch (OperationCanceledException)
         {
-            _logger?.LogWarning("CancellationToken is cancelled, stopping engine.");
+            _logger?.LogWarning("Cancelled task. Stopping engine.");
             return;
         }
         catch (Exception ex)
@@ -77,7 +77,7 @@ public class CrawlerEngine(EngineSettings settings)
         }
     }
 
-    protected virtual async Task AddCookies(IPage page, Cookie[] cookies)
+    protected virtual async Task AddCookies(IPage page, ImmutableArray<Cookie> cookies)
     {
         if (cookies.Length > 0)
         {
@@ -105,7 +105,7 @@ public class CrawlerEngine(EngineSettings settings)
     {
         var jobs = newJobs.Where(ncj => !engine.IgnoreUrls.Any(iu => iu == ncj.Url));
 
-        await engine.Scheduler.AddAsync(jobs.ToImmutableArray(), token);
+        await engine.Scheduler.Add(jobs.ToImmutableArray(), token);
     }
 
     protected virtual async Task HandleParsedResults(JArray jArray, ImmutableArray<ICrawlOutput> outputs, CancellationToken token)
@@ -119,16 +119,6 @@ public class CrawlerEngine(EngineSettings settings)
         }
     }
 
-    protected virtual async Task<IBrowser> LaunchBrowser(EngineSettings engineSettings)
-    {
-        var launchOptions = new LaunchOptions()
-        {
-            Headless = engineSettings.IsHeadless
-        };
-
-        return await Puppeteer.LaunchAsync(launchOptions);
-    }
-
     protected virtual void AddUrlToHistoryAndCheckLimit(string url, HistoryTracker historyTracker, int maxPagesToCrawl)
     {
         if (historyTracker.GetVisitedLinksCount() >= maxPagesToCrawl)
@@ -139,9 +129,16 @@ public class CrawlerEngine(EngineSettings settings)
         historyTracker.AddUrl(url);
     }
 
-    protected virtual async Task DownloadBrowser()
+    protected virtual async Task<IBrowser> DownloadAndLaunchBrowser(EngineSettings settings)
     {
         var browserFetcher = new BrowserFetcher();
         await browserFetcher.DownloadAsync();
+
+        var launchOptions = new LaunchOptions()
+        {
+            Headless = settings.IsHeadless
+        };
+
+        return await Puppeteer.LaunchAsync(launchOptions);
     }
 }

@@ -26,6 +26,12 @@ public class CsvFileCrawlOutput(string filePath, bool cleanOnStartup) : ICrawlOu
             {
                 File.Delete(filePath);
             }
+
+            var dir = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrWhiteSpace(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
         }
         finally
         {

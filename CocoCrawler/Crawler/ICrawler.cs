@@ -7,7 +7,7 @@ namespace CocoCrawler.Crawler;
 
 public interface ICrawler
 {
-    Task<CrawlResult> Crawl(IPage browserTab, PageCrawlJob job);
     void WithParser(IParser parser);
-    void WithLoggerFactory(ILoggerFactory? loggerFactory);
+    void WithLoggerFactory(ILoggerFactory loggerFactory);
+    Task<CrawlResult> Crawl(IPage browserTab, PageCrawlJob job);
 }

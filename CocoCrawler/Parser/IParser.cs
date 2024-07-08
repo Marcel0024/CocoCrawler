@@ -1,12 +1,12 @@
-﻿using AngleSharp.Dom;
-using CocoCrawler.Job.PageTasks;
+﻿using CocoCrawler.Job.PageTasks;
 using Newtonsoft.Json.Linq;
 
 namespace CocoCrawler.Parser;
 
 public interface IParser
 {
-    string[] GetUrlsFromSelector(IDocument doc, string selector);
-    JArray ExtractList(IDocument doc, CrawlPageExtractListTask scrapeList);
-    JObject ExtractObject(IDocument doc, CrawlPageExtractObjectTask task);
+    Task Init(string html);
+    string[] ParseForLinks(string linksSelector);
+    JArray ExtractList(CrawlPageExtractListTask scrapeList);
+    JObject ExtractObject(CrawlPageExtractObjectTask task);
 }

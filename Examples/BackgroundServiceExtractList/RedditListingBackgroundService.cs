@@ -24,7 +24,7 @@ public class RedditListingBackgroundService(ILoggerFactory loggerFactory) : Back
                     new("Total Comments","a.comments"),
                     new("Url","a.title", "href")
                 ])
-                .AddPagination("span.next-button > a.not-exist", newPage => newPage.ScrollToEnd())
+                .AddPagination("span.next-button > a")
                 .AddOutputToConsole()
                 .AddOutputToCsvFile("results.csv")
             )

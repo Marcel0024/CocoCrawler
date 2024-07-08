@@ -81,7 +81,9 @@ It's possible to add multiple pages to scrape with the same Tasks.
    await crawlerEngine.RunAsync(cancellationToken);
 ```
 
-This example starts at `https://old.reddit.com/r/csharp` and `https://old.reddit.com/r/dotnet` and opens each post and scrapes the title, url, upvotes and top comment. It also scrolls to the end of the page and waits 4 seconds before scraping the page. And it continues to the next page.
+This example starts at `https://old.reddit.com/r/csharp` and `https://old.reddit.com/r/dotnet` and opens each post and scrapes the title, url, upvotes and top comment. It also scrolls to the end of the page and waits 4 seconds before scraping the page. And then it continues with the next pagination page.
+
+
 
 ## Configuring the Engine
 
@@ -93,6 +95,20 @@ The engine can be configured with the following options:
 * `WithCookies(params Cookie[] cookies)`: The cookies to use
 * `TotalPagesToCrawl(int total)`: The total number of pages to crawl
 * `WithParallelismDegree(int parallelismDegree)` : The number of pages to crawl in parallel
+
+## Cookies
+
+It's possible to add cookies to all request
+
+```csharp
+.ConfigureEngine(options =>
+{
+    options.WithCookies([
+        new("auth-cookie", "l;alqpekcoizmdfugnvkjgvsaaprufc", "thedomain.com"),
+        new("Cookie2", "def", "localhost")
+    ]);
+})
+```
 
 ### Stopping the engine
 

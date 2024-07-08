@@ -1,4 +1,5 @@
-﻿using AngleSharp.Dom;
+﻿using AngleSharp;
+using AngleSharp.Dom;
 using CocoCrawler.Job.PageTasks;
 using Newtonsoft.Json.Linq;
 
@@ -6,25 +7,35 @@ namespace CocoCrawler.Parser;
 
 public class AngleSharpParser : IParser
 {
-    public virtual string[] GetUrlsFromSelector(IDocument doc, string selector)
+    private IDocument? _document;
+
+    public virtual async Task Init(string html)
     {
-        return doc.QuerySelectorAll(selector)
+        var config = Configuration.Default;
+        var context = BrowsingContext.New(config);
+
+        _document = await context.OpenAsync(req => req.Content(html));
+    }
+
+    public virtual string[] ParseForLinks(string linksSelector)
+    {
+        return _document!.QuerySelectorAll(linksSelector)
             .Select(link => link.GetAttribute("href"))
             .Where(link => link is not null)
             .Select(link => link!)
             .ToArray();
     }
 
-    public virtual JObject ExtractObject(IDocument doc, CrawlPageExtractObjectTask task)
+    public virtual JObject ExtractObject(CrawlPageExtractObjectTask task)
     {
-        return ParseObject(doc.DocumentElement!, task.Selectors);
+        return ParseObject(_document!.DocumentElement, task.Selectors);
     }
 
-    public virtual JArray ExtractList(IDocument doc, CrawlPageExtractListTask scrapeList)
+    public virtual JArray ExtractList(CrawlPageExtractListTask scrapeList)
     {
         var jArray = new JArray();
 
-        var containers = doc.QuerySelectorAll(scrapeList.ContentContainersSelector);
+        var containers = _document!.QuerySelectorAll(scrapeList.ContentContainersSelector);
 
         if (containers is null || containers.Length == 0)
         {

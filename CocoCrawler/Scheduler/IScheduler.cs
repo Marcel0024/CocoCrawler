@@ -5,7 +5,8 @@ namespace CocoCrawler.Scheduler;
 
 public interface IScheduler
 {
-    IAsyncEnumerable<PageCrawlJob> GetAllAsync(CancellationToken cancellationToken);
-    Task AddAsync(PageCrawlJob job, CancellationToken cancellationToken);
-    Task AddAsync(ImmutableArray<PageCrawlJob> jobs, CancellationToken cancellationToken);
+    IAsyncEnumerable<PageCrawlJob> GetAll(CancellationToken cancellationToken);
+    Task Add(PageCrawlJob job, CancellationToken cancellationToken);
+    Task Add(ImmutableArray<PageCrawlJob> jobs, CancellationToken cancellationToken);
+    Task Init(ImmutableArray<PageCrawlJob> jobs, CancellationToken cancellationToken);
 }

@@ -18,10 +18,10 @@ public class RedditPostsBackgroundService(ILoggerFactory loggerFactory) : Backgr
     {
         _crawlerEngine = await new CrawlerEngineBuilder()
             .AddPage("https://old.reddit.com/r/csharp", pageOptions => pageOptions
-                .OpenLinks(linksSelector: "div.thing.link.self a.byselector: link.comments", subPageOptions => subPageOptions
+                .OpenLinks(linksSelector: "div.thing ul.buttons li:first-of-type a.comments", subPageOptions => subPageOptions
                     .ExtractObject([
                         new("Title","div.sitetable.linklisting a.title"),
-                        new("Url","div.sitetable.linklisting a.title", "href"),
+                        new("Body", "usertext-body"),
                         new("Upvotes", "div.sitetable.linklisting div.score.unvoted"),
                         new("Top comment", "div.commentarea div.entry.unvoted div.md"),
                     ]))

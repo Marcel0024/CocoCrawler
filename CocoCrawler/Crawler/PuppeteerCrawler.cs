@@ -1,6 +1,4 @@
-﻿using AngleSharp;
-using AngleSharp.Dom;
-using CocoCrawler.Job;
+﻿using CocoCrawler.Job;
 using CocoCrawler.Job.PageBrowserActions;
 using CocoCrawler.Job.PageTasks;
 using CocoCrawler.Parser;
@@ -12,8 +10,8 @@ namespace CocoCrawler.Crawler;
 
 public class PuppeteerCrawler : ICrawler
 {
-    private IParser? Parser { get; set; }
     private ILogger? Logger { get; set; }
+    private IParser? Parser { get; set; }
 
     public virtual async Task<CrawlResult> Crawl(IPage browserTab, PageCrawlJob currentPageJob)
     {
@@ -56,59 +54,25 @@ public class PuppeteerCrawler : ICrawler
 
     protected virtual async Task Parse(PageCrawlJob job, string html, List<PageCrawlJob> newJobs, JArray jArray)
     {
-        ArgumentNullException.ThrowIfNull(Parser, nameof(Parser));
+        ArgumentNullException.ThrowIfNull(Parser);
 
-        var doc = await GetDocument(html);
+        await Parser.Init(html);
 
         foreach (var task in job.Tasks)
         {
             switch (task)
             {
                 case CrawlPageOpenLinksTask openLinks:
-                    {
-                        var urls = Parser.GetUrlsFromSelector(doc, openLinks.OpenLinksSelector);
-
-                        Logger?.LogDebug("OpenLinks selector returned {Count} Urls found in openLinks task.", urls.Length);
-
-                        foreach (var url in urls)
-                        {
-                            var newPageBuilder = openLinks.JobBuilder;
-
-                            newPageBuilder.WithUrl(url);
-                            newPageBuilder.AddOutput([.. job.Outputs]);
-                            newPageBuilder.WithTasks(job.Tasks.Where(t => t is CrawlPageExtractObjectTask).ToArray());
-
-                            var newPage = openLinks.JobBuilder.Build();
-
-                            newJobs.Add(newPage);
-                        }
-                    }
+                    HandleOpenLinksTask(openLinks, job, newJobs);
                     break;
                 case CrawlPagePaginateTask paginate:
-                    {
-                        var urls = Parser.GetUrlsFromSelector(doc, paginate.PaginationSelector);
-
-                        Logger?.LogDebug("Paginate selector {Count} Urls found in paginate task.", urls.Length);
-
-                        var newPages = urls.Select(url => new PageCrawlJob(url, [.. job.Tasks], [.. job.Outputs], paginate.PageActions));
-
-                        newJobs.AddRange(newPages);
-                    }
+                    HandlePaginateTask(paginate, job, newJobs);
                     break;
                 case CrawlPageExtractObjectTask scrape:
-                    {
-                        jArray.Add(Parser.ExtractObject(doc, scrape));
-                    }
+                    HandleExtractObject(scrape, job.Url, jArray);
                     break;
                 case CrawlPageExtractListTask scrapeList:
-                    {
-                        var jArrayResult = Parser.ExtractList(doc, scrapeList);
-
-                        foreach (var obj in jArrayResult.Cast<JObject>())
-                        {
-                            jArray.Add(obj);
-                        }
-                    }
+                    HandleExtractList(scrapeList, jArray);
                     break;
                 default:
                     throw new NotImplementedException("Task not implemented");
@@ -116,14 +80,54 @@ public class PuppeteerCrawler : ICrawler
         }
     }
 
-    protected virtual async Task<IDocument> GetDocument(string html)
+    private void HandleExtractList(CrawlPageExtractListTask scrapeList, JArray jArray)
     {
-        var config = Configuration.Default;
-        var context = BrowsingContext.New(config);
+        var jArrayResult = Parser!.ExtractList(scrapeList);
 
-        var document = await context.OpenAsync(req => req.Content(html));
+        foreach (var obj in jArrayResult.Cast<JObject>())
+        {
+            jArray.Add(obj);
+        }
+    }
 
-        return document;
+    private void HandleExtractObject(CrawlPageExtractObjectTask scrape, string url, JArray jArray)
+    {
+        var parsedObject = Parser!.ExtractObject(scrape);
+
+        parsedObject.AddFirst(new JProperty("Url", url));
+
+        jArray.Add(parsedObject);
+    }
+
+    protected virtual void HandlePaginateTask(CrawlPagePaginateTask paginate, PageCrawlJob job, List<PageCrawlJob> newJobs)
+    {
+        var urls = Parser!.ParseForLinks(paginate.PaginationSelector);
+
+        Logger?.LogDebug("Paginate selector {Count} Urls found in paginate task.", urls.Length);
+
+        var newPages = urls.Select(url => new PageCrawlJob(url, [.. job.Tasks], [.. job.Outputs], job.BrowserActions));
+
+        newJobs.AddRange(newPages);
+    }
+
+    protected virtual void HandleOpenLinksTask(CrawlPageOpenLinksTask openLinks, PageCrawlJob job, List<PageCrawlJob> newJobs)
+    {
+        var urls = Parser!.ParseForLinks(openLinks.OpenLinksSelector);
+
+        Logger?.LogDebug("OpenLinks selector returned {Count} Urls found in openLinks task.", urls.Length);
+
+        foreach (var url in urls)
+        {
+            var newPageBuilder = openLinks.JobBuilder;
+
+            newPageBuilder.WithUrl(url);
+            newPageBuilder.AddOutput([.. job.Outputs]);
+            newPageBuilder.WithTasks(job.Tasks.Where(t => t is CrawlPageExtractObjectTask).ToArray());
+
+            var newPage = openLinks.JobBuilder.Build();
+
+            newJobs.Add(newPage);
+        }
     }
 
     public void WithParser(IParser parser)
@@ -131,9 +135,9 @@ public class PuppeteerCrawler : ICrawler
         Parser = parser;
     }
 
-    public void WithLoggerFactory(ILoggerFactory? loggerFactory)
+    public void WithLoggerFactory(ILoggerFactory loggerFactory)
     {
-        Logger = loggerFactory?.CreateLogger<PuppeteerCrawler>();
+        Logger = loggerFactory.CreateLogger<PuppeteerCrawler>();
     }
 }
 

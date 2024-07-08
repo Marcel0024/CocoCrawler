@@ -1,4 +1,6 @@
-﻿using CocoCrawler.CrawlOutputs;
+﻿using AngleSharp.Css;
+using AngleSharp.Css.Parser;
+using CocoCrawler.CrawlOutputs;
 using CocoCrawler.Exceptions;
 using CocoCrawler.Job;
 using CocoCrawler.Job.PageBrowserActions;
@@ -26,6 +28,11 @@ public class PageCrawlJobBuilder
     public PageCrawlJobBuilder(string url)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(url, nameof(url));
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out _))
+        {
+            throw new CocoCrawlerBuilderException($"{url} is not a valid URI.");
+        }
 
         Url = url;
     }
@@ -83,23 +90,13 @@ public class PageCrawlJobBuilder
     }
 
     /// <summary>
-    /// Adds a task to paginate through a list of elements on the page with additional page actions.
+    /// Adds a task to paginate through.
     /// </summary>
     /// <param name="paginationSelector">The CSS selector to select the pagination element.</param>
-    /// <param name="options">The action to configure the page actions for the pagination task.</param>
     /// <returns>The updated <see cref="PageCrawlJobBuilder"/> instance.</returns>
-    public PageCrawlJobBuilder AddPagination(string paginationSelector, Action<PageActionsBuilder>? options = null)
+    public PageCrawlJobBuilder AddPagination(string paginationSelector)
     {
-        PageActionsBuilder? pageActionsBuilder = null;
-
-        if (options is not null)
-        {
-            pageActionsBuilder = new PageActionsBuilder();
-
-            options(pageActionsBuilder);
-        }
-
-        Tasks.Add(new CrawlPagePaginateTask(paginationSelector, pageActionsBuilder?.Build()));
+        Tasks.Add(new CrawlPagePaginateTask(paginationSelector));
 
         return this;
     }
@@ -210,7 +207,7 @@ public class PageCrawlJobBuilder
     {
         if (Tasks.Count == 0)
         {
-            throw new CocoCrawlerBuilderException($"A Page requires a purpose, try calling .{nameof(OpenLinks)}() or .{nameof(ExtractObject)}() or {nameof(AddPagination)}()");
+            throw new CocoCrawlerBuilderException($"A Page requires a purpose, try calling .{nameof(OpenLinks)}() or .{nameof(ExtractObject)}() or {nameof(AddPagination)}().");
         }
 
         if (Url is null)

@@ -1,10 +1,10 @@
 ﻿
 using CocoCrawler.Crawler;
+using CocoCrawler.CrawlJob;
 using CocoCrawler.Exceptions;
 using CocoCrawler.Parser;
 using CocoCrawler.Scheduler;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
 namespace CocoCrawler.Builders;
 
@@ -17,10 +17,10 @@ public class EngineSettingsBuilder
     private bool ParallelismDisabled { get; set; } = false;
     private string? UserAgent { get; set; } = null;
     private ILoggerFactory? LoggerFactory { get; set; } = null;
+    private IScheduler Scheduler { get; set; } = new InMemoryScheduler();
     private IParser Parser { get; set; } = new AngleSharpParser();
-    private IScheduler Scheduler { get; set; } = new MemoryScheduler();
     private ICrawler Crawler { get; set; } = new PuppeteerCrawler();
-    private Cookie[] Cookies { get; set; } = [];
+    private Cookie[]? Cookies { get; set; } = null;
 
     /// <summary>
     /// Sets the headless mode for the browser.
@@ -85,18 +85,6 @@ public class EngineSettingsBuilder
     }
 
     /// <summary>
-    /// Sets the parser to be used by the crawler engine.
-    /// </summary>
-    /// <param name="parser">The parser implementation.</param>
-    /// <returns>The CrawlerEngineBuilder instance.</returns>
-    public EngineSettingsBuilder WithParser(IParser parser)
-    {
-        Parser = parser;
-
-        return this;
-    }
-
-    /// <summary>
     /// Sets the scheduler to be used by the crawler engine.
     /// </summary>
     /// <param name="scheduler">The scheduler implementation.</param>
@@ -104,6 +92,18 @@ public class EngineSettingsBuilder
     public EngineSettingsBuilder WithScheduler(IScheduler scheduler)
     {
         Scheduler = scheduler;
+
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the parser to be used by the crawler.
+    /// </summary>
+    /// <param name="parser">The crawler implementation.</param>
+    /// <returns>The CrawlerEngineBuilder instance.</returns>
+    public EngineSettingsBuilder WithParser(IParser parser)
+    {
+        Parser = parser;
 
         return this;
     }
@@ -168,8 +168,12 @@ public class EngineSettingsBuilder
             throw new CocoCrawlerBuilderException("The total pages to crawl must be greater than or equal to 1.");
         }
 
+        if (LoggerFactory is not null)
+        {
+            Crawler.WithLoggerFactory(LoggerFactory);
+        }
+
         Crawler.WithParser(Parser);
-        Crawler.WithLoggerFactory(LoggerFactory);
 
         return new EngineSettings(Headless,
             ParallelismDisabled,
@@ -177,11 +181,10 @@ public class EngineSettingsBuilder
             ParallelismDegree,
             MaxPagesToCrawl,
             UserAgent,
-            Parser,
             Crawler,
             Scheduler,
             LoggerFactory,
-            Cookies,
+            Cookies is null ? [] : [.. Cookies],
             new HistoryTracker());
     }
 }

@@ -1,10 +1,7 @@
-﻿using CocoCrawler.Job.PageBrowserActions;
+﻿namespace CocoCrawler.Job.PageTasks;
 
-namespace CocoCrawler.Job.PageTasks;
-
-public class CrawlPagePaginateTask(string paginationSelector, PageActions? pageActions = null) 
+public class CrawlPagePaginateTask(string paginationSelector) 
     : IPageCrawlTask
 {
     public string PaginationSelector { get; init; } = paginationSelector;
-    public PageActions? PageActions { get; init; } = pageActions;
 }

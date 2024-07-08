@@ -1,8 +1,8 @@
 ﻿using CocoCrawler.Crawler;
-using CocoCrawler.Parser;
+using CocoCrawler.CrawlJob;
 using CocoCrawler.Scheduler;
 using Microsoft.Extensions.Logging;
-using System.Net;
+using System.Collections.Immutable;
 
 namespace CocoCrawler;
 
@@ -13,9 +13,8 @@ public record EngineSettings(
     int ParallelismDegree,
     int MaxPagesToCrawl,
     string? UserAgent,
-    IParser Parser,
     ICrawler Crawler,
     IScheduler Scheduler,
     ILoggerFactory? LoggerFactory,
-    Cookie[] Cookies,
+    ImmutableArray<Cookie> Cookies,
     HistoryTracker HistoryTracker);

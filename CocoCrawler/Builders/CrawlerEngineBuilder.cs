@@ -76,11 +76,9 @@ public class CrawlerEngineBuilder
         var engineSettings = EngineSettingsBuilder.Build();
         var jobs = CrawlPages.Select(cp => cp.Build()).ToImmutableArray();
 
-        await engineSettings.Scheduler.AddAsync(jobs, cancellationToken);
-
         await InitializeOutputs(jobs, cancellationToken);
 
-        return new CrawlerEngine(engineSettings);
+        return new CrawlerEngine(engineSettings, jobs);
     }
 
     private static async Task InitializeOutputs(ImmutableArray<PageCrawlJob> jobs, CancellationToken token)
