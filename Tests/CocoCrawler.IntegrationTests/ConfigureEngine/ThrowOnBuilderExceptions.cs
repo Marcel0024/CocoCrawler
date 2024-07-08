@@ -1,11 +1,11 @@
 ﻿using CocoCrawler.Builders;
 using CocoCrawler.Exceptions;
-using CocoCrawler.Scheduler;
 using FluentAssertions;
 using WireMock.Server;
 
 namespace CocoCrawler.IntegrationTests.Engine;
 
+[Collection(nameof(BrowserCollection))]
 public class ThrowOnBuilderExceptions
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();

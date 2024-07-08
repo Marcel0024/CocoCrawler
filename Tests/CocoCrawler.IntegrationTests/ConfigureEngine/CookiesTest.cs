@@ -7,6 +7,7 @@ using WireMock.Server;
 
 namespace CocoCrawler.IntegrationTests.Engine;
 
+[Collection(nameof(BrowserCollection))]
 public class CookiesTest
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();

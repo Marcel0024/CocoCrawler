@@ -6,6 +6,7 @@ using WireMock.Server;
 
 namespace CocoCrawler.IntegrationTests.ExtractListAndPaginate;
 
+[Collection(nameof(BrowserCollection))]
 public class ExtractObjectAndPaginateTests
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start(port: 9090);

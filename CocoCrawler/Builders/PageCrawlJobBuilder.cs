@@ -1,6 +1,4 @@
-﻿using AngleSharp.Css;
-using AngleSharp.Css.Parser;
-using CocoCrawler.CrawlOutputs;
+﻿using CocoCrawler.CrawlOutputs;
 using CocoCrawler.Exceptions;
 using CocoCrawler.Job;
 using CocoCrawler.Job.PageBrowserActions;
