@@ -19,7 +19,7 @@ var crawlerEngine = await new CrawlerEngineBuilder()
             new("Total Comments","a.comments"),
             new("Url","a.title", "href")
         ])
-        .AddPagination("span.next-button > a.not-exist", newPage => newPage.ScrollToEnd())
+        .AddPagination("span.next-button > a.not-exist")
         .AddOutputToConsole()
         .AddOutputToCsvFile("results.csv")
     )
