@@ -1,4 +1,5 @@
 using CocoCrawler.Builders;
+using CocoCrawler.Scheduler;
 using FluentAssertions;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -35,7 +36,7 @@ public class ExtractObjectAndPaginateTests
                 ])
                 .AddPagination("div.pagination a:nth-last-child(1)")
                 .AddOutputToCsvFile("ExtractListAndPaginate\\Results\\resultstest1.csv"))
-            .ConfigureEngine(ops => ops.TotalPagesToCrawl(2))
+            .ConfigureEngine(ops => ops.WithScheduler(new InMemoryScheduler(2)))
             .BuildAsync();
 
         // Act

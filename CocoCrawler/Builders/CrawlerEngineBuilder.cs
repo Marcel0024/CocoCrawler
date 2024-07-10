@@ -1,5 +1,4 @@
 ﻿using CocoCrawler.Exceptions;
-using CocoCrawler.Job;
 using System.Collections.Immutable;
 
 namespace CocoCrawler.Builders;
@@ -66,7 +65,7 @@ public class CrawlerEngineBuilder
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The built CrawlerEngine instance.</returns>
-    public async Task<CrawlerEngine> BuildAsync(CancellationToken cancellationToken = default)
+    public Task<CrawlerEngine> BuildAsync(CancellationToken _ = default)
     {
         if (CrawlPages.Length == 0)
         {
@@ -76,6 +75,6 @@ public class CrawlerEngineBuilder
         var engineSettings = EngineSettingsBuilder.Build();
         var jobs = CrawlPages.Select(cp => cp.Build()).ToImmutableArray();
 
-        return new CrawlerEngine(engineSettings, jobs);
+        return Task.FromResult(new CrawlerEngine(engineSettings, jobs));
     }
 }

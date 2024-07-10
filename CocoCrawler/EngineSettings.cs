@@ -1,6 +1,7 @@
 ﻿using CocoCrawler.Crawler;
 using CocoCrawler.CrawlJob;
 using CocoCrawler.Scheduler;
+using CocoCrawler.VisitedUrlTracker;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 
@@ -17,4 +18,4 @@ public record EngineSettings(
     IScheduler Scheduler,
     ILoggerFactory? LoggerFactory,
     ImmutableArray<Cookie> Cookies,
-    HistoryTracker HistoryTracker);
+    IVisitedUrlTracker VisitedUrlTracker);

@@ -1,8 +1,8 @@
-﻿using CocoCrawler.Crawler;
-using CocoCrawler.CrawlJob;
+﻿using CocoCrawler.CrawlJob;
 using CocoCrawler.Exceptions;
 using CocoCrawler.Job;
 using CocoCrawler.Outputs;
+using CocoCrawler.VisitedUrlTracker;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using PuppeteerSharp;
@@ -17,9 +17,8 @@ public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob>
     public virtual async Task RunAsync(CancellationToken cancellationToken = default)
     {
         await using var browser = await DownloadAndLaunchBrowser(settings);
-        await settings.Scheduler.Init(jobs, cancellationToken);
 
-        await InitializeOutputs(jobs, cancellationToken);
+        await Initialize(settings, jobs, cancellationToken);
 
         try
         {
@@ -95,7 +94,7 @@ public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob>
 
     protected virtual async Task CrawlPage(IPage page, PageCrawlJob job, EngineSettings engine, CancellationToken token)
     {
-        AddUrlToHistoryAndCheckLimit(job.Url, engine.HistoryTracker, engine.MaxPagesToCrawl);
+        await AddUrlToHistoryAndCheckLimit(job.Url, engine.VisitedUrlTracker, engine.MaxPagesToCrawl, token);
 
         var result = await engine.Crawler.Crawl(page, job);
 
@@ -105,7 +104,9 @@ public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob>
 
     protected virtual async Task HandleNewJobs(IList<PageCrawlJob> newJobs, EngineSettings engine, CancellationToken token)
     {
-        var jobs = newJobs.Where(ncj => !engine.IgnoreUrls.Any(iu => iu == ncj.Url));
+        string[] toIgnoreUrls = [.. engine.IgnoreUrls, .. (await engine.VisitedUrlTracker.GetVisitedUrls(token))];
+
+        var jobs = newJobs.Where(ncj => !toIgnoreUrls.Any(iu => iu == ncj.Url));
 
         await engine.Scheduler.Add(jobs.ToImmutableArray(), token);
     }
@@ -121,14 +122,14 @@ public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob>
         }
     }
 
-    protected virtual void AddUrlToHistoryAndCheckLimit(string url, HistoryTracker historyTracker, int maxPagesToCrawl)
+    protected virtual async Task AddUrlToHistoryAndCheckLimit(string url, IVisitedUrlTracker historyTracker, int maxPagesToCrawl, CancellationToken cancellationToken)
     {
-        if (historyTracker.GetVisitedLinksCount() >= maxPagesToCrawl)
+        if (await historyTracker.GetVisitedUrlsCount(cancellationToken) >= maxPagesToCrawl)
         {
             throw new CocoCrawlerPageLimitReachedException($"Max pages to crawl limit reached at {maxPagesToCrawl}.");
         }
 
-        historyTracker.AddUrl(url);
+        await historyTracker.AddVisitedUrl(url, cancellationToken);
     }
 
     protected virtual async Task<IBrowser> DownloadAndLaunchBrowser(EngineSettings settings)
@@ -144,9 +145,13 @@ public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob>
         return await Puppeteer.LaunchAsync(launchOptions);
     }
 
-    protected virtual async Task InitializeOutputs(ImmutableArray<PageCrawlJob> jobs, CancellationToken token)
+    private static async Task Initialize(EngineSettings settings, ImmutableArray<PageCrawlJob> jobs, CancellationToken cancellationToken)
     {
-        var tasks = jobs.SelectMany(j => j.Outputs.Select(x => x.Initiaize(token)));
+        List<Task> tasks = [
+            settings.Scheduler.Initialize(jobs, cancellationToken),
+            settings.VisitedUrlTracker.Initialize(cancellationToken),
+            ..jobs.SelectMany(j => j.Outputs.Select(x => x.Initiaize(cancellationToken)))
+        ];
 
         await Task.WhenAll(tasks);
     }

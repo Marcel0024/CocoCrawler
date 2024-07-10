@@ -35,7 +35,7 @@ public class InMemoryScheduler : IScheduler
         }
     }
 
-    public virtual async Task Init(ImmutableArray<PageCrawlJob> jobs, CancellationToken cancellationToken)
+    public virtual async Task Initialize(ImmutableArray<PageCrawlJob> jobs, CancellationToken cancellationToken)
     {
         _jobChannel = Channel.CreateUnbounded<PageCrawlJob>();
 

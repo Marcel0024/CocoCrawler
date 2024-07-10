@@ -4,6 +4,7 @@ using CocoCrawler.CrawlJob;
 using CocoCrawler.Exceptions;
 using CocoCrawler.Parser;
 using CocoCrawler.Scheduler;
+using CocoCrawler.VisitedUrlTracker;
 using Microsoft.Extensions.Logging;
 
 namespace CocoCrawler.Builders;
@@ -21,6 +22,7 @@ public class EngineSettingsBuilder
     private IParser Parser { get; set; } = new AngleSharpParser();
     private ICrawler Crawler { get; set; } = new PuppeteerCrawler();
     private Cookie[]? Cookies { get; set; } = null;
+    private IVisitedUrlTracker? VisitedUrlTracker { get; set; } = null;
 
     /// <summary>
     /// Sets the headless mode for the browser.
@@ -156,6 +158,31 @@ public class EngineSettingsBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the visited URL tracker to be used by the crawler engine.
+    /// </summary>
+    /// <param name="visitedUrlTracker">The visited URL tracker implementation.</param>
+    /// <returns>The <see cref="EngineSettingsBuilder"/> instance.</returns>
+    public EngineSettingsBuilder WithVisitedUrlTracker(IVisitedUrlTracker visitedUrlTracker)
+    {
+        VisitedUrlTracker = visitedUrlTracker;
+
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the visited URL tracker to be used by the crawler engine with a file-based implementation.
+    /// </summary>
+    /// <param name="fileName">The file name to store the visited URLs.</param>
+    /// <param name="cleanOnStart">A value indicating whether to clean the visited URLs file on engine start.</param>
+    /// <returns>The <see cref="EngineSettingsBuilder"/> instance.</returns>
+    public EngineSettingsBuilder PersistVisitedUrls(string fileName = "visited-links.txt", bool cleanOnStart = false)
+    {
+        VisitedUrlTracker = new FileVisitedUrlTracker(fileName, cleanOnStart);
+
+        return this;
+    }
+
     internal EngineSettings Build()
     {
         if (ParallelismDegree < 1)
@@ -185,6 +212,6 @@ public class EngineSettingsBuilder
             Scheduler,
             LoggerFactory,
             Cookies is null ? [] : [.. Cookies],
-            new HistoryTracker());
+            VisitedUrlTracker ?? new InMemoryVisitedUrlTracker());
     }
 }
