@@ -7,36 +7,21 @@ public class CsvFileCrawlOutput(string filePath, bool cleanOnStartup) : ICrawlOu
 {
     public bool CleanOnStartup { get; init; } = cleanOnStartup;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
-    private bool _initialized = false;
 
-    public virtual async Task Initiaize(CancellationToken cancellationToken)
+    public virtual Task Initiaize(CancellationToken cancellationToken)
     {
-        if (_initialized)
+        if (CleanOnStartup && File.Exists(filePath))
         {
-            return;
+            File.Delete(filePath);
         }
 
-        _initialized = true;
-
-        await _semaphore.WaitAsync(cancellationToken);
-
-        try
+        var dir = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrWhiteSpace(dir))
         {
-            if (CleanOnStartup && File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
+            Directory.CreateDirectory(dir);
+        }
 
-            var dir = Path.GetDirectoryName(filePath);
-            if (!string.IsNullOrWhiteSpace(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
+        return Task.CompletedTask;
     }
 
     public virtual async Task WriteAsync(JObject jObject, CancellationToken cancellationToken)

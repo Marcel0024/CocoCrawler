@@ -19,6 +19,8 @@ public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob>
         await using var browser = await DownloadAndLaunchBrowser(settings);
         await settings.Scheduler.Init(jobs, cancellationToken);
 
+        await InitializeOutputs(jobs, cancellationToken);
+
         try
         {
             if (settings.DisableParallelism)
@@ -140,5 +142,12 @@ public class CrawlerEngine(EngineSettings settings, ImmutableArray<PageCrawlJob>
         };
 
         return await Puppeteer.LaunchAsync(launchOptions);
+    }
+
+    protected virtual async Task InitializeOutputs(ImmutableArray<PageCrawlJob> jobs, CancellationToken token)
+    {
+        var tasks = jobs.SelectMany(j => j.Outputs.Select(x => x.Initiaize(token)));
+
+        await Task.WhenAll(tasks);
     }
 }

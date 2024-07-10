@@ -11,7 +11,7 @@ public class ThrowOnBuilderExceptions
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();
 
     [Fact]
-    public async Task ShouldThrow_When_NoPagesAdded()
+    public async Task ShouldThrow_BuilderEx_WhenNoPagesAdded()
     {
         // Arange
         var crawlerEngine = new CrawlerEngineBuilder();
@@ -26,7 +26,7 @@ public class ThrowOnBuilderExceptions
     }
 
     [Fact]
-    public void ShouldThrow_When_NotValidUri()
+    public void ShouldThrow_BuilderEx_WhenNotValidUri()
     {
         // Arange
         var crawlerEngine = new CrawlerEngineBuilder();
@@ -41,7 +41,7 @@ public class ThrowOnBuilderExceptions
     }
 
     [Fact]
-    public async Task ShouldThrow_When_PagesDontHaveTask()
+    public async Task ShouldThrow_BuilderEx_WhenPagesDontHaveTask()
     {
         // Arange
         var crawlerEngine = new CrawlerEngineBuilder()
@@ -57,7 +57,7 @@ public class ThrowOnBuilderExceptions
     }
 
     [Fact]
-    public async Task ShouldThrow_When_InvalidParallelismDegree()
+    public async Task ShouldThrow_BuilderEx_InvalidParallelismDegree()
     {
         // Arange
         var crawlerEngine = new CrawlerEngineBuilder()
@@ -74,7 +74,7 @@ public class ThrowOnBuilderExceptions
     }
 
     [Fact]
-    public async Task ShouldThrow_When_InvalidTotalPagesToCrawl()
+    public async Task ShouldThrow_BuilderEx_WhenInvalidTotalPagesToCrawl()
     {
         // Arange
         var crawlerEngine = new CrawlerEngineBuilder()
