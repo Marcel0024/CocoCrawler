@@ -19,6 +19,12 @@ var crawlerEngine = await new CrawlerEngineBuilder()
             new("Url","a.title", "href")
         ])
         .AddPagination("span.next-button > a")
+        .ConfigurePageActions(options => // Only for showing the possibilities, not needed for running sample
+        {
+            options.ScrollToEnd();
+            options.Wait(2000);
+            // options.Click("span.next-button > a");
+        })
         .AddOutputToConsole()
         .AddOutputToCsvFile("results.csv")
     )
@@ -140,9 +146,9 @@ It's possible to add multiple pages to scrape with the same Tasks.
 This example starts at `https://old.reddit.com/r/csharp` and `https://old.reddit.com/r/dotnet` and opens each post and scrapes the title, url, upvotes and top comment. It also scrolls to the end of the page and waits 4 seconds before scraping the page. And then it continues with the next pagination page.
 
 
-## Page Browser Actions
+## PageActions - A way to interact with the browser
 
-It's possible to add browser actions to each page. The following actions are available:
+Page Actions are a way to interact with the browser. It's possible to add page actions to each page. It's possible to click away popups, or scroll to bottom. The following actions are available:
 
 ```csharp
 var crawlerEngine = await new CrawlerEngineBuilder()
@@ -154,6 +160,7 @@ var crawlerEngine = await new CrawlerEngineBuilder()
         .ConfigurePageActions(ops =>
         {
             ops.ScrollToEnd();
+            ops.Click("button#load-more");
             ops.Wait(4000);
         });
     .BuildAsync(cancellationToken);
@@ -219,7 +226,10 @@ var crawlerEngine = await new CrawlerEngineBuilder()
 ```csharp
 var crawlerEngine = await new CrawlerEngineBuilder()
     .AddPage(...)
-    .WithUserAgent("linux browser - example user agent")
+    .ConfigureEngine(options =>
+    {
+        options.WithUserAgent("linux browser - example user agent");
+    })
     .BuildAsync(cancellationToken);
 ```
 Default User Agent is from Chrome browser.
@@ -229,7 +239,10 @@ Default User Agent is from Chrome browser.
 ```csharp
 var crawlerEngine = await new CrawlerEngineBuilder()
     .AddPage(...)
-    .WithIgnoreUrls(["https://example.com", "https://example2.com"]))
+    .ConfigureEngine(options =>
+    {
+        options.WithIgnoreUrls(["https://example.com", "https://example2.com"]);
+    })    
     .BuildAsync(cancellationToken);
 ```
 

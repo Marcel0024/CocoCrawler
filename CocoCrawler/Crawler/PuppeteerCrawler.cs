@@ -48,6 +48,9 @@ public class PuppeteerCrawler : ICrawler
                 case PageActionType.Wait:
                     await Task.Delay(Convert.ToInt32(action.Parameters));
                     break;
+                case PageActionType.Click:
+                    await page.ClickAsync(action.Parameters);
+                    break;
             }
         }
     }

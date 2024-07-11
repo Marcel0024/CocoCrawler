@@ -3,5 +3,6 @@
 public enum PageActionType
 {
     ScrollToEnd,
-    Wait
+    Wait,
+    Click
 }

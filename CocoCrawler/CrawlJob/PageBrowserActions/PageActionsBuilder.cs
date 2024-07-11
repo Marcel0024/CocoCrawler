@@ -20,6 +20,13 @@ public class PageActionsBuilder
         return this;
     }
 
+    public PageActionsBuilder Click(string selector)
+    {
+        Actions.Add(new PageAction(PageActionType.Click, selector));
+
+        return this;
+    }
+
     internal PageActions Build()
     {
         if (Actions.Count == 0)
