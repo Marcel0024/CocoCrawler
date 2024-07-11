@@ -253,15 +253,13 @@ var crawlerEngine = await new CrawlerEngineBuilder()
     .BuildAsync(cancellationToken);
 ```
 
-### Notable options
+### Other notable options
 The engine can be configured with the following options:
 
 * `UseHeadlessMode(bool headless)`: If the browser should be headless or not
-* `WithLoggerFactory(ILoggerFactory loggerFactory)`: The logger factory to use
-* `WithUserAgent(string userAgent)`: The user agent to use
-* `WithCookies(params Cookie[] cookies)`: The cookies to use
+* `WithLoggerFactory(ILoggerFactory loggerFactory)`: The logger factory to use, to enable logging.
 * `TotalPagesToCrawl(int total)`: The total number of pages to crawl
-* `WithParallelismDegree(int parallelismDegree)` : The number of pages to crawl in parallel
+* `WithParallelismDegree(int parallelismDegree)` : The number of browser tabs it can open in parallel
 
 ## Extensibility
 
