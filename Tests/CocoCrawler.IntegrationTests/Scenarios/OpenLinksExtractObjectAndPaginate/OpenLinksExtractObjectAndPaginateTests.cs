@@ -1,39 +1,33 @@
 using CocoCrawler.Builders;
 using CocoCrawler.Scheduler;
 using FluentAssertions;
-using WireMock.RequestBuilders;
-using WireMock.ResponseBuilders;
 using WireMock.Server;
 
-namespace CocoCrawler.IntegrationTests.ExtractListAndPaginate;
+namespace CocoCrawler.IntegrationTests.Scenarios.OpenLinksExtractObjectAndPaginate;
 
 [Collection(nameof(BrowserCollection))]
-public class OpenLinksExtractObjectAndPaginate
+public class OpenLinksExtractObjectAndPaginateTests
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start(port: 9010);
 
     [Fact]
-    public async Task ExtractListAndPaginate_ShouldHaveDetailsInFile_OnHappyFlow()
+    public async Task OpenLinksExtractObjAndPaginate_ShouldHaveDetailsInFile_OnHappyFlow()
     {
         // Arange
         foreach (var index in Enumerable.Range(1, 10))
         {
-            _wireMockServer.Given(Request.Create().WithUrl($"http://localhost:9010/main-page-{index}"))
-                .RespondWith(Response.Create()
-                .WithHeader("Content-Type", "text/xml; charset=utf-8")
-                .WithBody(GetListingHtmlPages(index)));
+            _wireMockServer.ReturnSuccessWithPage($"{_wireMockServer.Url}/main-page-{index}", GetListingHtmlPages(index));
         }
 
-        foreach (var index in Enumerable.Range(1, 10 * 3))
+        foreach (var index in Enumerable.Range(1, 10 * 3)) // 3 listing per page
         {
-            _wireMockServer.Given(Request.Create().WithUrl($"http://localhost:9010/content-page-{index}"))
-                 .RespondWith(Response.Create()
-                 .WithHeader("Content-Type", "text/xml; charset=utf-8")
-                 .WithBody(GetContentPage(index)));
+            _wireMockServer.ReturnSuccessWithPage($"{_wireMockServer.Url}/content-page-{index}", GetContentPage(index));
         }
+
+        var outputFile = Path.Combine("Scenarios", "OpenLinksExtractObjectAndPaginate", "Results", "resultstest1.csv");
 
         var crawlerEngine = await new CrawlerEngineBuilder()
-            .AddPage("http://localhost:9010/main-page-1", options => options
+            .AddPage($"{_wireMockServer.Url}/main-page-1", options => options
                 .OpenLinks("div.content.test a.link", newPage => newPage
                     .ExtractObject([
                         new("Title", "div.content.test div.title"),
@@ -42,9 +36,9 @@ public class OpenLinksExtractObjectAndPaginate
                         new("Link", "a", "href")
                     ]))
                 .AddPagination("div.pagination a:nth-last-child(1)")
-                .AddOutputToCsvFile("OpenLinksExtractObjectAndPaginate\\Results\\resultstest1.csv"))
+                .AddOutputToCsvFile(outputFile))
             .ConfigureEngine(e => e
-                .WithScheduler(new InMemoryScheduler(totalSecondsTimeoutAfterJob: 5))
+                .WithScheduler(new InMemoryScheduler(totalSecondsTimeoutAfterJob: 2))
                 .WithIgnoreUrls(["http://localhost:9010/content-page-6"])
                 .DisableParallelism())
             .BuildAsync();
@@ -53,7 +47,7 @@ public class OpenLinksExtractObjectAndPaginate
         await crawlerEngine.RunAsync();
 
         // Assert
-        var outputContents = File.ReadAllText("OpenLinksExtractObjectAndPaginate\\Results\\resultstest1.csv");
+        var outputContents = File.ReadAllText(outputFile);
 
         var expect = @"Url,Title,Description,Amount,Link
 http://localhost:9010/content-page-1,Title 1,Description1,Amount 10,link1
@@ -88,6 +82,8 @@ http://localhost:9010/content-page-30,Title 30,Description30,Amount 300,link30
 ";
 
         outputContents.Should().BeEquivalentTo(expect);
+
+        File.Delete(outputFile);
     }
 
     private static string GetContentPage(int index)

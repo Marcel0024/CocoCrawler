@@ -6,7 +6,7 @@ using WireMock.Server;
 namespace CocoCrawler.IntegrationTests.Engine;
 
 [Collection(nameof(BrowserCollection))]
-public class ThrowOnBuilderExceptions
+public class ThrowOnBuilderExceptionsTests
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();
 

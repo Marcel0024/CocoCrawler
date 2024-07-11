@@ -7,7 +7,7 @@ using WireMock.Server;
 namespace CocoCrawler.IntegrationTests.ConfigureEngine;
 
 [Collection(nameof(BrowserCollection))]
-public class VisitedLinks
+public class VisitedLinksTests
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();
 

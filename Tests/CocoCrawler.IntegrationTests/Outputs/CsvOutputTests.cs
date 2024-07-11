@@ -1,25 +1,20 @@
 ﻿using CocoCrawler.Builders;
 using CocoCrawler.Scheduler;
 using FluentAssertions;
-using WireMock.RequestBuilders;
-using WireMock.ResponseBuilders;
 using WireMock.Server;
 
 namespace CocoCrawler.IntegrationTests.Outputs;
 
 [Collection(nameof(BrowserCollection))]
-public class CsvOutput
+public class CsvOutputTests
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();
 
     [Fact]
-    public async Task CsvOutput_ShouldCreateFile_OnCleanOnStartup()
+    public async Task CsvOutput_ShouldCreateFile_WhenCleanOnStartup()
     {
         // Arange
-        _wireMockServer.Given(Request.Create().WithUrl($"{_wireMockServer.Url}/main-page"))
-            .RespondWith(Response.Create()
-            .WithHeader("Content-Type", "text/xml; charset=utf-8")
-            .WithBody(GetPage()));
+        _wireMockServer.ReturnSuccessWithPage($"{_wireMockServer.Url}/main-page", GetPage());
 
         var outputPath = Path.Combine("Outputs", "Really", "Deep", "Path", "resultstest1.csv");
 
@@ -53,10 +48,7 @@ public class CsvOutput
     public async Task CsvOutput_ShouldNotCreateFile_OnCleanOnStartupFalse()
     {
         // Arange
-        _wireMockServer.Given(Request.Create().WithUrl($"{_wireMockServer.Url}/main-page"))
-            .RespondWith(Response.Create()
-            .WithHeader("Content-Type", "text/xml; charset=utf-8")
-            .WithBody(GetPage()));
+        _wireMockServer.ReturnSuccessWithPage($"{_wireMockServer.Url}/main-page", GetPage());
 
         var outputPath = Path.Combine("Outputs", "Really", "Deep", "Path", $"results-dont-clean-{Random.Shared.Next(0,100)}.csv");
 

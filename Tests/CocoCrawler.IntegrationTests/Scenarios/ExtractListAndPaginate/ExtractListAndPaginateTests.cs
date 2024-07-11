@@ -1,11 +1,9 @@
 using CocoCrawler.Builders;
 using CocoCrawler.Scheduler;
 using FluentAssertions;
-using WireMock.RequestBuilders;
-using WireMock.ResponseBuilders;
 using WireMock.Server;
 
-namespace CocoCrawler.IntegrationTests.ExtractListAndPaginate;
+namespace CocoCrawler.IntegrationTests.Scenarios.ExtractListAndPaginate;
 
 [Collection(nameof(BrowserCollection))]
 public class ExtractObjectAndPaginateTests
@@ -16,15 +14,8 @@ public class ExtractObjectAndPaginateTests
     public async Task ExtractListAndPaginate_ShouldHaveDetailsInFile_OnHappyFlow()
     {
         // Arange
-        _wireMockServer.Given(Request.Create().WithUrl("http://localhost:9090/main-page"))
-            .RespondWith(Response.Create()
-            .WithHeader("Content-Type", "text/xml; charset=utf-8")
-            .WithBodyFromFile("ExtractListAndPaginate\\Responses\\main-page.html"));
-
-        _wireMockServer.Given(Request.Create().WithUrl("http://localhost:9090/page-2"))
-            .RespondWith(Response.Create()
-            .WithHeader("Content-Type", "text/xml; charset=utf-8")
-            .WithBodyFromFile("ExtractListAndPaginate\\Responses\\page-2.html"));
+        _wireMockServer.ReturnSuccessWithBodyFromFile("http://localhost:9090/main-page", "Scenarios\\ExtractListAndPaginate\\Responses\\main-page.html");
+        _wireMockServer.ReturnSuccessWithBodyFromFile("http://localhost:9090/page-2", "Scenarios\\ExtractListAndPaginate\\Responses\\page-2.html");
 
         var crawlerEngine = await new CrawlerEngineBuilder()
             .AddPage("http://localhost:9090/main-page", options => options

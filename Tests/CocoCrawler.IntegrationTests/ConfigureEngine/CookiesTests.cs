@@ -1,14 +1,12 @@
 ﻿using CocoCrawler.Builders;
 using CocoCrawler.Scheduler;
 using FluentAssertions;
-using WireMock.RequestBuilders;
-using WireMock.ResponseBuilders;
 using WireMock.Server;
 
 namespace CocoCrawler.IntegrationTests.Engine;
 
 [Collection(nameof(BrowserCollection))]
-public class CookiesTest
+public class CookiesTests
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();
 
@@ -16,8 +14,7 @@ public class CookiesTest
     public async Task Cookies_Should_Be_Send_To_The_Client()
     {
         // Arange
-        _wireMockServer.Given(Request.Create().WithUrl($"{_wireMockServer.Url}/cookies"))
-            .RespondWith(Response.Create().WithSuccess());
+        _wireMockServer.ReturnSuccessFor($"{_wireMockServer.Url}/cookies");
 
         var crawlerEngine = await new CrawlerEngineBuilder()
             .AddPage($"{_wireMockServer.Url}/cookies", options => options.ExtractObject([new("No exist", "div.test")]))

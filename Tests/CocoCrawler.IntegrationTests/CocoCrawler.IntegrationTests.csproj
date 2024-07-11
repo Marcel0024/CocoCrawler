@@ -33,10 +33,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="ExtractListAndPaginate\Responses\page-2.html">
+	  <None Update="Scenarios\ExtractListAndPaginate\Responses\page-2.html">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <None Update="ExtractListAndPaginate\Responses\main-page.html">
+	  <None Update="Scenarios\ExtractListAndPaginate\Responses\main-page.html">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>

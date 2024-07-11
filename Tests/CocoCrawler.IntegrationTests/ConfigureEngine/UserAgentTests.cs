@@ -1,8 +1,6 @@
 ﻿using CocoCrawler.Builders;
 using CocoCrawler.Scheduler;
 using FluentAssertions;
-using WireMock.RequestBuilders;
-using WireMock.ResponseBuilders;
 using WireMock.Server;
 
 namespace CocoCrawler.IntegrationTests.Engine;
@@ -16,8 +14,7 @@ public class UserAgentTests
     public async Task UserAgent_Should_Be_Overwritten()
     {
         // Arange
-        _wireMockServer.Given(Request.Create().WithUrl($"{_wireMockServer.Url}/useragent"))
-            .RespondWith(Response.Create().WithSuccess());
+        _wireMockServer.ReturnSuccessFor($"{_wireMockServer.Url}/useragent");
 
         var crawlerEngine = await new CrawlerEngineBuilder()
             .AddPage($"{_wireMockServer.Url}/useragent", options => options.ExtractObject([new("No exist", "div.test")]))
