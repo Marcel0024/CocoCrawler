@@ -32,14 +32,14 @@ public class CsvFileCrawlOutput(string filePath, bool cleanOnStartup) : ICrawlOu
 
         try
         {
-            // Add headers
+            // Add headers if new file
             if (!File.Exists(filePath))
             {
                 var headers = string.Join(",", jObject.Properties().Select(p => p.Name));
-                await File.WriteAllTextAsync(filePath, headers + Environment.NewLine, cancellationToken);
+                await File.AppendAllLinesAsync(filePath, [headers], cancellationToken);
             }
 
-            await File.AppendAllTextAsync(filePath, csv + Environment.NewLine, cancellationToken);
+            await File.AppendAllLinesAsync(filePath, [csv], cancellationToken);
         }
         finally
         {
