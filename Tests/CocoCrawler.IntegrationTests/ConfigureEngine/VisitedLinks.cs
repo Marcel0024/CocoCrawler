@@ -4,8 +4,9 @@ using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
 using WireMock.Server;
 
-namespace CocoCrawler.IntegrationTests.VisitedUrlTracker;
+namespace CocoCrawler.IntegrationTests.ConfigureEngine;
 
+[Collection(nameof(BrowserCollection))]
 public class VisitedLinks
 {
     private readonly WireMockServer _wireMockServer = WireMockServer.Start();
@@ -64,7 +65,7 @@ public class VisitedLinks
 
     private static void SetUrls(WireMockServer wireMockServer)
     {
-        foreach(var index in Enumerable.Range(0, 31))
+        foreach (var index in Enumerable.Range(0, 31))
         {
             wireMockServer.Given(Request.Create().WithUrl($"{wireMockServer.Url}/main-page-{index}"))
                .RespondWith(Response.Create()
