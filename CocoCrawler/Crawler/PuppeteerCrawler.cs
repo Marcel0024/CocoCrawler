@@ -115,7 +115,7 @@ public class PuppeteerCrawler : ICrawler
 
     protected virtual void HandleOpenLinksTask(CrawlPageOpenLinksTask openLinks, PageCrawlJob job, List<PageCrawlJob> newJobs)
     {
-        var urls = Parser!.ParseForLinks(openLinks.OpenLinksSelector);
+        var urls = Parser!.ParseForLinks(openLinks.OpenLinksSelector, openLinks.LinkProcessor);
 
         Logger?.LogDebug("OpenLinks selector returned {Count} Urls found in openLinks task.", urls.Length);
 
