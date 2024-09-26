@@ -17,10 +17,12 @@ public class AngleSharpParser : IParser
         _document = await context.OpenAsync(req => req.Content(html));
     }
 
-    public virtual string[] ParseForLinks(string linksSelector)
+    public virtual string[] ParseForLinks(string linksSelector, Func<IElement, string?>? linkProcessor = null)
     {
+        linkProcessor ??= (element) => element.GetAttribute("href");
+
         return _document!.QuerySelectorAll(linksSelector)
-            .Select(link => link.GetAttribute("href"))
+            .Select(link => linkProcessor(link))
             .Where(link => link is not null)
             .Select(link => link!)
             .ToArray();
